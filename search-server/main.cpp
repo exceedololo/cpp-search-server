@@ -97,12 +97,9 @@ public:
         return matched_documents;
     }
     
-    vector<Document> FindTopDocuments(const string& raw_query, DocumentStatus status) const {
-        if(status != DocumentStatus::ACTUAL){
-            return FindTopDocuments(raw_query, [status](int document_id, DocumentStatus status, int rating) {return document_status == status;});
-        }else
-        return  FindTopDocuments(raw_query, [](int document_id, DocumentStatus status, int rating) { return status == DocumentStatus::ACTUAL;});   
-    } 
+    vector<Document> FindTopDocuments(const string& raw_query, DocumentStatus status = DocumentStatus::ACTUAL) const {
+        return FindTopDocuments(raw_query, [status](int document_id, DocumentStatus document_status, int rating) {return document_status == status;});
+    }
 
     int GetDocumentCount() const {
         return documents_.size();
