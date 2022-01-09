@@ -78,15 +78,11 @@ public:
             });
     }
 
-    vector<Document> FindTopDocuments(const string& raw_query) const {
-    return  FindTopDocuments(raw_query, [](int document_id, DocumentStatus status, int rating) { return status == DocumentStatus::ACTUAL;});
- }
-
-    template <typename Predicate>
-    vector<Document> FindTopDocuments(const string& raw_query, Predicate predicate) const {
+   template <typename Predicate>
+    vector<Document> FindTopDocuments(const string& raw_query, Predicate predicate) const {            
         const Query query = ParseQuery(raw_query);
         auto matched_documents = FindAllDocuments(query, predicate);
-
+        
         sort(matched_documents.begin(), matched_documents.end(),
              [](const Document& lhs, const Document& rhs) {
                 if (abs(lhs.relevance - rhs.relevance) < 1e-6) {
@@ -100,12 +96,13 @@ public:
         }
         return matched_documents;
     }
-
+    
     vector<Document> FindTopDocuments(const string& raw_query, DocumentStatus status) const {
-        return FindTopDocuments(raw_query, [status](int document_id, DocumentStatus document_status, int rating) {
-                return document_status == status;
-            });
-    }
+        if(status != DocumentStatus::ACTUAL){
+            return FindTopDocuments(raw_query, [status](int document_id, DocumentStatus status, int rating) {return document_status == status;});
+        }else
+        return  FindTopDocuments(raw_query, [](int document_id, DocumentStatus status, int rating) { return status == DocumentStatus::ACTUAL;});   
+    } 
 
     int GetDocumentCount() const {
         return documents_.size();
