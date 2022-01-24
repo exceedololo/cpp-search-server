@@ -9,6 +9,8 @@
 
 using namespace std;
 
+const int Global_Const = 1e-6;
+
 const int MAX_RESULT_DOCUMENT_COUNT = 5;
 
 string ReadLine() {
@@ -85,7 +87,7 @@ public:
         
         sort(matched_documents.begin(), matched_documents.end(),
              [](const Document& lhs, const Document& rhs) {
-                if (abs(lhs.relevance - rhs.relevance) < 1e-6) {
+                if (abs(lhs.relevance - rhs.relevance) < Global_Const) {
                     return lhs.rating > rhs.rating;
                 } else {
                     return lhs.relevance > rhs.relevance;
@@ -274,7 +276,7 @@ void TestExcludeStopWordsFromAddedDocumentContent() {
 }
  
 void TestAddDocument(){
-	SearchServer server;
+    SearchServer server;
     {
       const string query = "in the city"s;
 	  const auto found_docs = server.FindTopDocuments(query);
@@ -380,7 +382,7 @@ void TestRelevanceSort() {
     ASSERT(is_sorted(begin(document_rel), end(document_rel), [](double l, double r) {return l > r; }) == 1);
 }
  
-void TestRaiting()
+void TestRating()
 {
     SearchServer server;
  
@@ -399,7 +401,7 @@ void TestRaiting()
  
 //return FindTopDocuments(raw_query, [status]([[maybe_unused]] int document_id, DocumentStatus document_status, [[maybe_unused]]	int rating) { return document_status == status; });
  
-void TestPredicat() {
+void TestPredicate() {
     SearchServer server;
  
     server.AddDocument(0, "a b c", DocumentStatus::ACTUAL, {0});
@@ -453,8 +455,8 @@ struct TestingDocs {
     DocumentStatus status;
     const vector<int> ratings;
 };
- 
-    void TestRelevanceSearchedDocumentContent() {
+
+void TestRelevanceSearchedDocumentContent() {
     vector<TestingDocs> documents_for_test = {
         /* 1 */ { 37, "пушистый кот и пушистый хвост"s,     DocumentStatus::ACTUAL, {3, 3, 4, 3, 5}},    // ср.рейтинг 3,6
         /* 2 */ { 42, "белый но кот модный ошейник"s,       DocumentStatus::ACTUAL, { 1, 2, 3 } },       // ср.рейтинг 2
@@ -486,8 +488,8 @@ void TestSearchServer() {
     RUN_TEST(TestMinusWords);
     RUN_TEST(TestMatchingWords);
     RUN_TEST(TestRelevanceSort);
-    RUN_TEST(TestRaiting);
-    RUN_TEST(TestPredicat);
+    RUN_TEST(TestRating);
+    RUN_TEST(TestPredicate);
     RUN_TEST(TestStatus);
     RUN_TEST(TestRelevanceSearchedDocumentContent);
     // Не забудьте вызывать остальные тесты здесь
