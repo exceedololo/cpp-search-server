@@ -9,9 +9,9 @@
 
 using namespace std;
 
-const int Global_Const = 1e-6;
+const int ACCURACY = 1e-6;
 
-const int ACCURACY = 5;
+const int MAX_RESULT_DOCUMENT_COUNT = 5;
 
 string ReadLine() {
     string s;
