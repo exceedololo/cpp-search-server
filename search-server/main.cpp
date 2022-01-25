@@ -11,7 +11,7 @@ using namespace std;
 
 const int Global_Const = 1e-6;
 
-const int MAX_RESULT_DOCUMENT_COUNT = 5;
+const int ACCURACY = 5;
 
 string ReadLine() {
     string s;
@@ -87,7 +87,7 @@ public:
         
         sort(matched_documents.begin(), matched_documents.end(),
              [](const Document& lhs, const Document& rhs) {
-                if (abs(lhs.relevance - rhs.relevance) < Global_Const) {
+                if (abs(lhs.relevance - rhs.relevance) < ACCURACY) {
                     return lhs.rating > rhs.rating;
                 } else {
                     return lhs.relevance > rhs.relevance;
@@ -250,6 +250,51 @@ private:
    Подставьте сюда вашу реализацию макросов 
    ASSERT, ASSERT_EQUAL, ASSERT_EQUAL_HINT, ASSERT_HINT и RUN_TEST
 */
+void AssertImpl(bool value, const string& expr_str, const string& file, const string& func, unsigned line,
+                const string& hint) {
+    if (!value) {
+        cout << file << "("s << line << "): "s << func << ": "s;
+        cout << "ASSERT("s << expr_str << ") failed."s;
+        if (!hint.empty()) {
+            cout << " Hint: "s << hint;
+        }
+        cout << endl;
+        abort();
+    }
+}
+
+#define ASSERT(expr) AssertImpl(!!(expr), #expr, __FILE__, __FUNCTION__, __LINE__, ""s)
+
+#define ASSERT_HINT(expr, hint) AssertImpl(!!(expr), #expr, __FILE__, __FUNCTION__, __LINE__, (hint))
+
+template <typename T, typename U>
+void AssertEqualImpl(const T& t, const U& u, const string& t_str, const string& u_str, const string& file,
+                     const string& func, unsigned line, const string& hint) {
+    if (t != u) {
+        cout << boolalpha;
+        cout << file << "("s << line << "): "s << func << ": "s;
+        cout << "ASSERT_EQUAL("s << t_str << ", "s << u_str << ") failed: "s;
+        cout << t << " != "s << u << "."s;
+        if (!hint.empty()) {
+            cout << " Hint: "s << hint;
+        }
+        cout << endl;
+        abort();
+    }
+}
+
+#define ASSERT_EQUAL(a, b) AssertEqualImpl((a), (b), #a, #b, __FILE__, __FUNCTION__, __LINE__, ""s)
+
+#define ASSERT_EQUAL_HINT(a, b, hint) AssertEqualImpl((a), (b), #a, #b, __FILE__, __FUNCTION__, __LINE__, (hint))
+
+template <typename TEST>
+void RunTestImpl(TEST Test1, const string& func) {
+    Test1();
+    cerr << func;
+    cerr <<" OK" << endl;
+}
+
+#define RUN_TEST(func) RunTestImpl ((func), #func)
  
 // -------- Начало модульных тестов поисковой системы ----------
  
@@ -473,7 +518,7 @@ void TestRelevanceSearchedDocumentContent() {
     const auto found_docs = server.FindTopDocuments("и модный кот");
     vector<double> test_relevance = { 0.34657, 0.23104, 0.17328 };
     for (int i = 0; i < 3; i++)
-        ASSERT(fabs(test_relevance[i] - found_docs[i].relevance) < 1E-5);
+        ASSERT(fabs(test_relevance[i] - found_docs[i].relevance) < ACCURACY);
 }
  
 /*
