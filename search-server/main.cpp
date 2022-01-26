@@ -520,7 +520,27 @@ void TestRelevanceSearchedDocumentContent() {
     for (int i = 0; i < 3; i++)
         ASSERT(fabs(test_relevance[i] - found_docs[i].relevance) < ACCURACY);
 }
- 
+/*
+bool IsDoubleEqual(double left, double right) {
+    return std::abs(left - right) < kEpsilon;
+}
+
+//Корректное вычисление релевантности найденных документов.
+
+void TestRelevanceCalculation() {
+    const string kQuery = "dog"s;
+    SearchServer server;
+    server.SetStopWords("huge flying green cat");
+    server.AddDocument(1, string{"huge flying green cat"}, DocumentStatus::ACTUAL, {1});
+    server.AddDocument(2, string{"my little red dog with fire tail"}, DocumentStatus::ACTUAL, {2});
+    server.AddDocument(3, string{"oh la la"}, DocumentStatus::ACTUAL, {3});
+
+    const vector<Document> kResults = server.FindTopDocuments(kQuery);
+    double relevance = 1.0 / 7.0 * log(3.0 / 1.0);
+
+    ASSERT(IsDoubleEqual(relevance, kResults.front().relevance));
+}
+*/
 /*
 Разместите код остальных тестов здесь
 */
