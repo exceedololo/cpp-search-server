@@ -93,21 +93,14 @@ public:
     }
     
     explicit SearchServer(const string& stop_words_text) :
-    SearchServer(SplitIntoWords(stop_words_text)) {
-        for (auto &word : SplitIntoWords(stop_words_text)){
-            if (!IsValidWord(word)){
-                throw invalid_argument("Error word "s); 
-            }
-        }    
+    SearchServer(SplitIntoWords(stop_words_text)) {   
     }
 
     void AddDocument(int document_id, const string& document, DocumentStatus status, const vector<int>& ratings) {
         if ((document_id < 0) || IsAddingExistingID(document_id)){//проверка на спецсимволы
             throw invalid_argument("Error document_id "s);
-        }
-        
+        }  
         const vector<string> words = SplitIntoWordsNoStop(document);
- 
         const double inv_word_count = 1.0 / words.size();
         for (const string& word : words) {
             word_to_document_freqs_[word][document_id] += inv_word_count;
@@ -118,9 +111,7 @@ public:
     template <typename DocumentPredicate>
     vector<Document> FindTopDocuments(const string& raw_query, DocumentPredicate document_predicate) const {
         const Query query = ParseQuery(raw_query);
- 
         auto matched_documents = FindAllDocuments(query, document_predicate);
- 
         sort(matched_documents.begin(), matched_documents.end(), [](const Document& lhs, const Document& rhs) {
             if (abs(lhs.relevance - rhs.relevance) < PRECISION) {
                 return lhs.rating > rhs.rating;
@@ -135,18 +126,12 @@ public:
     }
 
     vector<Document> FindTopDocuments(const string& raw_query, DocumentStatus status) const {
-        if (!IsValidWord(raw_query)){
-            throw invalid_argument("Invalid characters in the query");
-        }
         return FindTopDocuments(raw_query, [status](int document_id, DocumentStatus document_status, int rating) {
             return document_status == status;
         });
     }
 
     vector<Document> FindTopDocuments(const string& raw_query) const {
-        if (!IsValidWord(raw_query)){
-            throw invalid_argument("Invalid characters in the query");
-        }
         return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
     }
 
@@ -214,12 +199,11 @@ public:
     vector<string> SplitIntoWordsNoStop(const string& text) const {
         vector<string> words;
         for (auto &word:SplitIntoWords(text)){ 
-		if (IsIllegalMinusWord(word) || !IsValidWord(word)) { 
-			throw invalid_argument("Invalid characters in the query");} 
-		}
-        for (const string& word : SplitIntoWords(text)) {
+            if (!IsValidWord(word)) { 
+                throw invalid_argument("Invalid characters in the query");
+            } 
             if (!IsStopWord(word)) {
-                words.push_back(word);
+            words.push_back(word);
             }
         }
         return words;
@@ -267,15 +251,7 @@ public:
         // Empty result by initializing it with default constructed Query
        //result = {};
         Query query;
-        if (IsIllegalMinusWord(text) || !IsValidWord(text)) {
-			throw invalid_argument("Invalid characters in the query");
-        }
         for (const string& word : SplitIntoWords(text)) {
-            if(word[0] == '-' && word[1] == '-'){
-                throw invalid_argument("Error two minus"s);
-            }
-            
-            
             const QueryWord query_word = ParseQueryWord(word);
             if (!query_word.is_stop) {
                 if (query_word.is_minus) {
