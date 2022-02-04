@@ -85,7 +85,7 @@ public:
     
     explicit SearchServer(const StringContainer& stop_words) : 
     stop_words_(MakeUniqueNonEmptyStrings(stop_words)) {
-        for (auto &word:stop_words){
+        for (auto &word : stop_words){
             if (!IsValidWord(word)){
                 throw invalid_argument("Error word "s); 
             }
@@ -94,7 +94,7 @@ public:
     
     explicit SearchServer(const string& stop_words_text) :
     SearchServer(SplitIntoWords(stop_words_text)) {
-        for (auto &word:SplitIntoWords(stop_words_text)){
+        for (auto &word : SplitIntoWords(stop_words_text)){
             if (!IsValidWord(word)){
                 throw invalid_argument("Error word "s); 
             }
@@ -106,15 +106,7 @@ public:
             throw invalid_argument("Error document_id "s);
         }
         
-        for (auto &word:SplitIntoWords(document)){
-		if (IsIllegalMinusWord(word) || !IsValidWord(word)) {
-			 throw invalid_argument("Invalid characters in the query");}
-		}
-        
         const vector<string> words = SplitIntoWordsNoStop(document);
- 
-        /*if (words.empty())
-            throw invalid_argument("Error empty"s);*/
  
         const double inv_word_count = 1.0 / words.size();
         for (const string& word : words) {
@@ -125,10 +117,6 @@ public:
 
     template <typename DocumentPredicate>
     vector<Document> FindTopDocuments(const string& raw_query, DocumentPredicate document_predicate) const {
-        for (auto &word:SplitIntoWords(raw_query)){
-		if (IsIllegalMinusWord(word) || !IsValidWord(word)) {
-			 throw invalid_argument("Invalid characters in the query");}
-		}
         const Query query = ParseQuery(raw_query);
  
         auto matched_documents = FindAllDocuments(query, document_predicate);
@@ -167,7 +155,7 @@ public:
     }
 
     int GetDocumentId(int index) const {
-        if ( index < 0 || index >= GetDocumentCount() ){
+        if ( index < 0 || index >= GetDocumentCount()) {
             throw out_of_range("Index of document is out of range"s);
         }
         auto it = documents_.begin();
@@ -176,10 +164,6 @@ public:
     }
 
     tuple<vector<string>, DocumentStatus> MatchDocument(const string& raw_query, int document_id) const {
-        for (auto &word:SplitIntoWords(raw_query)){
-            if (IsIllegalMinusWord(word) || !IsValidWord(word))
-            throw invalid_argument("Invalid characters in the query");
-        }
         const Query query = ParseQuery(raw_query);
         vector<string> matched_words;
         for (const string& word : query.plus_words) {
@@ -229,6 +213,10 @@ public:
  
     vector<string> SplitIntoWordsNoStop(const string& text) const {
         vector<string> words;
+        for (auto &word:SplitIntoWords(text)){ 
+		if (IsIllegalMinusWord(word) || !IsValidWord(word)) { 
+			throw invalid_argument("Invalid characters in the query");} 
+		}
         for (const string& word : SplitIntoWords(text)) {
             if (!IsStopWord(word)) {
                 words.push_back(word);
@@ -279,10 +267,15 @@ public:
         // Empty result by initializing it with default constructed Query
        //result = {};
         Query query;
+        if (IsIllegalMinusWord(text) || !IsValidWord(text)) {
+			throw invalid_argument("Invalid characters in the query");
+        }
         for (const string& word : SplitIntoWords(text)) {
             if(word[0] == '-' && word[1] == '-'){
                 throw invalid_argument("Error two minus"s);
             }
+            
+            
             const QueryWord query_word = ParseQueryWord(word);
             if (!query_word.is_stop) {
                 if (query_word.is_minus) {
@@ -335,13 +328,6 @@ public:
     static bool IsIllegalMinusWord(const string& raw_query) {
         if (raw_query.back() == '-') {
             return true;
-        }
-        else {
-            for (int i = 0; i < raw_query.size(); ++i) {
-                if (raw_query[i] == '-' && raw_query[i + 1] == '-') {
-                    return true;
-                }
-            }
         }
         return false;
     }
