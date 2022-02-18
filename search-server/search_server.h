@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cmath>
 #include <math.h>
 #include <set>
@@ -62,9 +63,7 @@ public:
 
     template <typename DocumentPredicate>
     std::vector<Document> FindTopDocuments(const std::string& raw_query, DocumentPredicate document_predicate) const;
-
     std::vector<Document> FindTopDocuments(const std::string&, DocumentStatus) const;
-
     std::vector<Document> FindTopDocuments(const std::string&) const;
 
     std::tuple<std::vector<std::string>, DocumentStatus> MatchDocument(const std::string&, int) const;
