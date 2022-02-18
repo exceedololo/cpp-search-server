@@ -4,21 +4,15 @@
 
 
 std::vector<Document> RequestQueue::AddFindRequest(const std::string& raw_query, DocumentStatus status) {
-    return AddFindRequest(raw_query, [status](int document_id, DocumentStatus document_status, int rating) {
-        return document_status == status;
-        });
+    const auto result = search_server_.FindTopDocuments(raw_query, status);
+        return SetterToAddRequest(result);
 }
 
 std::vector<Document> RequestQueue::AddFindRequest(const std::string& raw_query) {
-    return AddFindRequest(raw_query, DocumentStatus::ACTUAL);
+    const auto result = search_server_.FindTopDocuments(raw_query);
+        return SetterToAddRequest(result);
 }
 
 int RequestQueue::GetNoResultRequests() const {
-    int empty_result = 0;
-    for (const QueryResult& r : requests_) {
-        if (r.request.size() == 0) {
-            empty_result++;
-        }
-    }
-    return empty_result;
+    return no_result_request_;
 }
