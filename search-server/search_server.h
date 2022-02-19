@@ -39,9 +39,6 @@ class SearchServer {
 
 public:
     // Defines an invalid document id
-    // You can refer this constant as SearchServer::INVALID_DOCUMENT_ID
-     static constexpr int INVALID_DOCUMENT_ID = -1;
-
     template <typename StringContainer>
     explicit SearchServer(const StringContainer&);
 
@@ -79,7 +76,6 @@ private:
         return stop_words_.count(word) > 0;
     }
     std::vector<std::string> SplitIntoWordsNoStop(const std::string& text) const;
-    //std::vector<std::string> SplitIntoWordsNoStop(std::string text) const;
 
     QueryWord ParseQueryWord(const std::string text) const;
 
@@ -100,8 +96,8 @@ private:
 
 template <typename StringContainer>
 SearchServer::SearchServer(const StringContainer& stop_words) {
-    CheckValidity(stop_words);
     stop_words_ = MakeUniqueNonEmptyStrings(stop_words);
+    CheckValidity(stop_words);
 }
 
 template <typename DocumentPredicate>
