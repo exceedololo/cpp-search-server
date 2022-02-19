@@ -18,11 +18,7 @@ public:
 
     // сделаем "обёртки" для всех методов поиска, чтобы сохранять результаты для нашей статистики
     template <typename DocumentPredicate>
-    std::vector<Document> AddFindRequest(const std::string& raw_query, DocumentPredicate document_predicate) {
-        // напишите реализацию
-        const auto result = search_server_.FindTopDocuments(raw_query, document_predicate);
-        return SetterToAddRequest(result);
-    }
+    std::vector<Document> AddFindRequest(const std::string& , DocumentPredicate);
 
     std::vector<Document> AddFindRequest(const std::string& raw_query, DocumentStatus status);
 
@@ -42,19 +38,26 @@ private:
     std::deque<QueryResult> requests_;
     const static int sec_in_day_ = 1440;
     // возможно, здесь вам понадобится что-то ещё
-    void AddRequest(int results){
-    ++current_time_;
-    while (!requests_.empty() && sec_in_day_ <= current_time_ - requests_.front().timestamp){
-        if(requests_.front().result_ == 0)
-        {
-            --no_result_request_;
+    void AddRequest(int results) {
+        ++current_time_;
+        while (!requests_.empty() && sec_in_day_ <= current_time_ - requests_.front().timestamp){
+            if(requests_.front().result_ == 0)
+            {
+                --no_result_request_;
+            }
+            requests_.pop_front();
         }
-        requests_.pop_front();
-    }
 
-    requests_.push_back({results, current_time_});
-    if (results == 0) {
+        requests_.push_back({results, current_time_});
+        if (results == 0) {
         ++no_result_request_;
-    }
+        }
     }
     };
+
+template <typename DocumentPredicate>
+    std::vector<Document> RequestQueue::AddFindRequest(const std::string& raw_query, DocumentPredicate document_predicate) {
+        // напишите реализацию
+        const auto result = search_server_.FindTopDocuments(raw_query, document_predicate);
+        return SetterToAddRequest(result);
+    }
