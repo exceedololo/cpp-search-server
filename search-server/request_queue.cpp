@@ -16,3 +16,19 @@ std::vector<Document> RequestQueue::AddFindRequest(const std::string& raw_query)
 int RequestQueue::GetNoResultRequests() const {
     return no_result_request_;
 }
+
+void RequestQueue::AddRequest(int results) {
+    ++current_time_;
+    while (!requests_.empty() && sec_in_day_ <= current_time_ - requests_.front().timestamp){
+        if(requests_.front().result_ == 0){
+            --no_result_request_;
+        }
+        requests_.pop_front();
+    }
+    requests_.push_back({results, current_time_});
+    if (results == 0) {
+    ++no_result_request_;
+    }
+}
+
+    
