@@ -30,32 +30,6 @@ std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_quer
     return FindTopDocuments(raw_query, DocumentStatus::ACTUAL); 
 } 
  
-/*std::tuple<std::vector<std::string>, DocumentStatus> SearchServer::MatchDocument(const std::string& raw_query, int document_id) const { 
- 
-   const auto query = ParseQuery(static_cast<std::string>(raw_query));
- 
-        std::vector<std::string> matched_words;
-        for (const std::string& word : query.plus_words) {
-            if (word_to_document_freqs_.count(word) == 0) {
-                continue;
-            }
-            if (word_to_document_freqs_.at(word).count(document_id)) {
-                matched_words.push_back(word);
-            }
-        }
-        for (const std::string& word : query.minus_words) {
-            if (word_to_document_freqs_.count(word) == 0) {
-                continue;
-            }
-            if (word_to_document_freqs_.at(word).count(document_id)) {
-                matched_words.clear();
-                break;
-            }
-        }
- 
-    return { matched_words, documents_.at(document_id).status }; 
-} */
- 
 bool SearchServer::IsValidWord(const std::string& word) { 
     // A valid word must not contain special characters 
     return none_of(word.begin(), word.end(), [](char c) { 
