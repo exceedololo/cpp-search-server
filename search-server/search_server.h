@@ -40,7 +40,7 @@ class SearchServer {
 public:
     // Defines an invalid document id
     // You can refer this constant as SearchServer::INVALID_DOCUMENT_ID
-    inline static constexpr int INVALID_DOCUMENT_ID = -1;
+     static constexpr int INVALID_DOCUMENT_ID = -1;
 
     template <typename StringContainer>
     explicit SearchServer(const StringContainer&);
@@ -48,8 +48,9 @@ public:
     explicit SearchServer(const std::string&);
 
     void AddDocument(int, const std::string&, DocumentStatus, const std::vector<int>&);
+    //int document_id, const std::string& document, DocumentStatus status, const std::vector<int>& ratings
 
-    inline int GetDocumentCount() const noexcept{
+     int GetDocumentCount() const noexcept{
         return documents_.size();
     }
 
@@ -77,12 +78,12 @@ private:
     inline bool IsStopWord(const std::string& word) const {
         return stop_words_.count(word) > 0;
     }
+    std::vector<std::string> SplitIntoWordsNoStop(const std::string& text) const;
+    //std::vector<std::string> SplitIntoWordsNoStop(std::string text) const;
 
-    [[nodiscard]] bool SplitIntoWordsNoStop(const std::string&, std::vector<std::string>&) const;
+    QueryWord ParseQueryWord(const std::string text) const;
 
-    [[nodiscard]] bool ParseQueryWord(std::string, QueryWord&) const;
-
-    [[nodiscard]] bool ParseQuery(const std::string&, Query&) const;
+    Query ParseQuery(const std::string& text) const;
 
     // Existence required
     double ComputeWordInverseDocumentFreq(const std::string&) const;
@@ -105,28 +106,19 @@ SearchServer::SearchServer(const StringContainer& stop_words) {
 
 template <typename DocumentPredicate>
 std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_query, DocumentPredicate document_predicate) const {
-    std::vector<Document> result;
-    Query query;
-    if (!ParseQuery(raw_query, query)) {
-        throw std::invalid_argument("invalid request");
-    }
-    auto matched_documents = FindAllDocuments(query, document_predicate);
-
-    sort(matched_documents.begin(), matched_documents.end(), [](const Document& lhs, const Document& rhs) {
-        if (abs(lhs.relevance - rhs.relevance) < 1e-6) {
-            return lhs.rating > rhs.rating;
+     auto query = ParseQuery(raw_query);
+ 
+        auto matched_documents = FindAllDocuments(query, document_predicate);
+ 
+        sort(matched_documents.begin(), matched_documents.end(),
+             [](const Document& lhs, const Document& rhs) {
+                 return lhs.relevance > rhs.relevance
+                     || (abs(lhs.relevance - rhs.relevance) < 1e-6 && lhs.rating > rhs.rating);
+             });
+        if (matched_documents.size() > MAX_RESULT_DOCUMENT_COUNT) {
+            matched_documents.resize(MAX_RESULT_DOCUMENT_COUNT);
         }
-        else {
-            return lhs.relevance > rhs.relevance;
-        }
-        });
-    if (matched_documents.size() > MAX_RESULT_DOCUMENT_COUNT) {
-        matched_documents.resize(MAX_RESULT_DOCUMENT_COUNT);
-    }
-
-    // Exchange matched_documents and result instead of deep copying
-    result.swap(matched_documents);
-    return result;
+        return matched_documents;
 }
 
 template <typename DocumentPredicate>
