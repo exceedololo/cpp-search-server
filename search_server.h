@@ -11,6 +11,7 @@
 #include "log_duration.h"
 
 const int MAX_RESULT_DOCUMENT_COUNT = 5;
+const double PRECISION = 1e-6;
 
 class SearchServer {
 
@@ -131,7 +132,7 @@ std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_quer
     auto matched_documents = FindAllDocuments(query, document_predicate);
 
     sort(matched_documents.begin(), matched_documents.end(), [](const Document& lhs, const Document& rhs) {
-        if (abs(lhs.relevance - rhs.relevance) < 1e-6) {
+        if (abs(lhs.relevance - rhs.relevance) < PRECISION) {
             return lhs.rating > rhs.rating;
         }
         else {
