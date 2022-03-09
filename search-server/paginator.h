@@ -1,66 +1,51 @@
-//Вставьте сюда своё решение из урока «‎Очередь запросов».‎
+// в качестве заготовки кода используйте последнюю версию своей поисковой системы
 #pragma once
 
-#include <vector>
-#include <algorithm>
-#include <iostream>
-
-template<typename Iterator>
+template<typename It>
 class IteratorRange {
+    It begin_;
+    It end_;
+
 public:
-    IteratorRange(Iterator begin, Iterator end)
-            : first_(begin)
-            , last_(end)
-            , size_(distance(first_, last_)) {
-    }
-
-    Iterator begin() const {
-        return first_;
-    }
-
-    Iterator end() const {
-        return last_;
-    }
-
-    size_t size() const {
-        return size_;
-    }
-private:
-    Iterator first_, last_;
-    size_t size_;
+    IteratorRange(const It begin, const It end) : begin_(begin), end_(end) {};
+    It begin() const noexcept{ return begin_; }
+    It end() const noexcept{ return end_; }
 };
 
 template<typename It>
-std::ostream& operator<<(std::ostream& out, const IteratorRange<It>& ir) {
+std::ostream& operator<<(std::ostream& os, const IteratorRange<It>& ir) {
     for (It it = ir.begin(); it != ir.end(); ++it) {
-        out << *it;
+        os << *it;
     }
-    return out;
+    return os;
 }
 
-template <typename Iterator>
+template <typename It>
 class Paginator {
+    std::vector<IteratorRange<It>> _range;
+    It begin_;
+    It end_;
+
 public:
-    Paginator(Iterator begin, Iterator end, size_t page_size) {
-        for (size_t left = distance(begin, end); left > 0;) {
-            const size_t current_page_size = std::min(page_size, left);
-            const Iterator current_page_end = next(begin, current_page_size);
-            pages_.push_back({begin, current_page_end});
-            left -= current_page_size;
-            begin = current_page_end;
+    Paginator(const It begin, const It end, const size_t size) :begin_(begin), end_(end) {
+		assert(end >= begin && size >0);
+        while (begin_ != end_) {
+            int distance = std::distance(begin_, end_);
+
+            if (distance > static_cast<int>(size)) {
+                distance = size;
+            }
+            _range.push_back({ begin_, begin_ + distance });
+            std::advance(begin_, distance);
         }
+    };
+
+    auto begin()const noexcept{
+        return _range.begin();
     }
-    auto begin()const {
-        return pages_.begin();
+    auto end()const noexcept{
+        return _range.end();
     }
-    auto end()const {
-        return pages_.end();
-    }
-    size_t size() const{
-        return pages_.size();
-    }
-private:
-    std::vector<IteratorRange<Iterator>> pages_;
 };
 
 template <typename Container>

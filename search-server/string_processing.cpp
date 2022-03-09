@@ -1,4 +1,4 @@
-//Вставьте сюда своё решение из урока «‎Очередь запросов».‎
+// в качестве заготовки кода используйте последнюю версию своей поисковой системы
 #include "string_processing.h"
 
 std::vector<std::string> SplitIntoWords(const std::string& text) {

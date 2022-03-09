@@ -1,34 +1,24 @@
-//Вставьте сюда своё решение из урока «‎Очередь запросов».‎
+// в качестве заготовки кода используйте последнюю версию своей поисковой системы
 #include "request_queue.h"
 
 
 
 std::vector<Document> RequestQueue::AddFindRequest(const std::string& raw_query, DocumentStatus status) {
-    const auto result = search_server_.FindTopDocuments(raw_query, status);
-        return SetterToAddRequest(result);
+    return AddFindRequest(raw_query, [status](int document_id, DocumentStatus document_status, int rating) {
+        return document_status == status;
+        });
 }
 
 std::vector<Document> RequestQueue::AddFindRequest(const std::string& raw_query) {
-    const auto result = search_server_.FindTopDocuments(raw_query);
-        return SetterToAddRequest(result);
+    return AddFindRequest(raw_query, DocumentStatus::ACTUAL);
 }
 
 int RequestQueue::GetNoResultRequests() const {
-    return no_result_request_;
-}
-
-void RequestQueue::AddRequest(int results) {
-    ++current_time_;
-    while (!requests_.empty() && sec_in_day_ <= current_time_ - requests_.front().timestamp){
-        if(requests_.front().result_ == 0){
-            --no_result_request_;
+    int empty_result = 0;
+    for (const QueryResult& r : requests_) {
+        if (r.request.size() == 0) {
+            empty_result++;
         }
-        requests_.pop_front();
     }
-    requests_.push_back({results, current_time_});
-    if (results == 0) {
-    ++no_result_request_;
-    }
+    return empty_result;
 }
-
-    

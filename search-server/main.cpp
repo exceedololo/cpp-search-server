@@ -1,4 +1,4 @@
-//Вставьте сюда своё решение из урока «‎Очередь запросов».‎
+// в качестве заготовки кода используйте последнюю версию своей поисковой системы
 #include <map>
 #include <set>
 #include <string>
@@ -10,10 +10,16 @@
 #include "paginator.h"
 #include "read_input_functions.h"
 #include "request_queue.h"
+#include "remove_duplicates.h"
+#include "test_example_functions.h"
 
 using namespace std;
 
 int main() {
+    //TestPaginator();
+    //TestSearchServer();
+   // TestRequestQueue();
+
     SearchServer search_server("and in at"s);
     RequestQueue request_queue(search_server);
 
