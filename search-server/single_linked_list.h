@@ -76,7 +76,6 @@ class SingleLinkedList {
         [[nodiscard]] bool operator!=(const BasicIterator<const Type>& rhs) const noexcept {
             //assert(false);
             // Заглушка. Реализуйте оператор самостоятельно
-            //return node_ != rhs.node_;
             return !(*this == rhs);
         }
 
@@ -93,7 +92,6 @@ class SingleLinkedList {
         [[nodiscard]] bool operator!=(const BasicIterator<Type>& rhs) const noexcept {
             //assert(false);
             // Заглушка. Реализуйте оператор самостоятельно
-            //return node_ != rhs.node_;
             return !(*this == rhs);
         }
 
@@ -114,9 +112,6 @@ class SingleLinkedList {
         BasicIterator operator++(int) noexcept {
             //assert(false);
             // Заглушка. Реализуйте оператор самостоятельно
-            /*BasicIterator p(node_);
-            node_ = node_ -> next_node;
-            return p;*/
             auto old_value = *this;
             ++* this;
             return old_value;
@@ -139,10 +134,6 @@ class SingleLinkedList {
         [[nodiscard]] pointer operator->() const noexcept {
             //assert(false);
             // Заглушка. Реализуйте оператор самостоятельно
-            /*if (node_ != nullptr){
-                return &(node_ -> value);
-            }
-            return nullptr;*/
             return &node_->value;
         }
 
@@ -294,7 +285,6 @@ public:
         
     void Clear() noexcept {
         // Реализуйте метод самостоятельно
-        //size_ = 0;
         while(head_.next_node != nullptr) {
         Node* temp = (head_.next_node);
         head_.next_node = temp -> next_node;
