@@ -13,7 +13,7 @@ struct Document {
     int rating = 0;
 };
 
-std::ostream& operator<<(std::ostream& , const Document& ); 
+std::ostream& operator<<(std::ostream& , const Document& );
 
 enum class DocumentStatus {
     ACTUAL,

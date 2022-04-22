@@ -28,7 +28,7 @@ class Paginator {
 
 public:
     Paginator(const It begin, const It end, const size_t size) :begin_(begin), end_(end) {
-		assert(end >= begin && size >0);
+        assert(end >= begin && size >0);
         while (begin_ != end_) {
             int distance = std::distance(begin_, end_);
 
