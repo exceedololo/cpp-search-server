@@ -129,18 +129,8 @@ private:
     template <typename DocumentPredicate>
     std::vector<Document> FindAllDocuments(std::execution::parallel_policy, const Query&, DocumentPredicate) const;
 
-    // template <typename StringContainer>
-    //  void CheckValidity(const StringContainer&);
-
-    /*template <typename StringContainer>
-    TransparentStringSet MakeUniqueNonEmptyStrings(const StringContainer& strings);*/
 };
 
-/*template <typename StringContainer>
-SearchServer::SearchServer(const StringContainer& stop_words) {
-    CheckValidity(stop_words);
-    stop_words_ = MakeUniqueNonEmptyStrings(stop_words);
-}*/
 template <typename StringContainer>
 SearchServer::SearchServer(const StringContainer& stop_words)
         :stop_words_(MakeUniqueNonEmptyStrings(stop_words)){
@@ -151,8 +141,7 @@ SearchServer::SearchServer(const StringContainer& stop_words)
 }
 
 template <typename DocumentPredicate>
-std::vector<Document> SearchServer::FindTopDocuments(std::string_view raw_query, DocumentPredicate document_predicate) const
-{
+std::vector<Document> SearchServer::FindTopDocuments(std::string_view raw_query, DocumentPredicate document_predicate) const{
     return FindTopDocuments(std::execution::seq, raw_query, document_predicate);
 }
 
@@ -230,8 +219,7 @@ std::vector<Document> SearchServer::FindAllDocuments(std::execution::sequenced_p
 
 template <typename DocumentPredicate>
 std::vector<Document> SearchServer::FindAllDocuments(std::execution::parallel_policy, const Query& query, DocumentPredicate document_predicate) const {
-    ConcurrentMap<int, double> document_to_relevance(CONCURENT_MAP_BUCKET_COUNT);
-    {
+    ConcurrentMap<int, double> document_to_relevance(CONCURENT_MAP_BUCKET_COUNT); {
         for_each(std::execution::par,
                  query.plus_words.begin(), query.plus_words.end(),
                  [this, &document_to_relevance, &document_predicate](const std::string_view word) {
@@ -249,14 +237,16 @@ std::vector<Document> SearchServer::FindAllDocuments(std::execution::parallel_po
                  });
     }
 
-    {for (std::string_view word : query.minus_words) {
+    {
+    for (std::string_view word : query.minus_words) {
         if (word_to_document_freqs_.count(word) == 0) {
             continue;
         }
         for (const auto [document_id, _] : word_to_document_freqs_.at(word)) {
             document_to_relevance.Erase(document_id);
         }
-    } }
+    } 
+    }
 
     std::vector<Document> matched_documents;
     for (const auto [document_id, relevance] : document_to_relevance.BuildOrdinaryMap()) {
@@ -264,23 +254,3 @@ std::vector<Document> SearchServer::FindAllDocuments(std::execution::parallel_po
     }
     return matched_documents;
 }
-
-/*template <typename StringContainer>
-void SearchServer::CheckValidity(const StringContainer& strings) {
-    for (const std::string& str : strings) {
-        if (!IsValidWord(str)) {
-            throw std::invalid_argument("invalid stop-words in constructor");
-        }
-    }
-}*/
-
-/*template <typename StringContainer>
-std::set<std::string> SearchServer::MakeUniqueNonEmptyStrings(const StringContainer& strings) {
-    std::set<std::string> non_empty_strings;
-    for (const std::string& str : strings) {
-        if (!str.empty()) {
-            non_empty_strings.insert(str);
-        }
-    }
-    return non_empty_strings;
-}*/
