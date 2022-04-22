@@ -7,9 +7,6 @@
 #include <set>
 
 std::vector<std::string_view> SplitIntoWords(std::string_view);
-std::vector<std::string> SplitIntoWords(const std::string&);
-
-
 
 using TransparentStringSet = std::set<std::string, std::less<>>;
 
